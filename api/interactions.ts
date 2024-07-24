@@ -19,7 +19,7 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
-    await verify(req)
+    await verify(...req)
 
     const message = await req.json() as { type: InteractionType, data: APIInteractionResponse };
     if (message.type === InteractionType.APPLICATION_COMMAND)
