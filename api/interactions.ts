@@ -30,5 +30,10 @@ export async function POST(req: Request) {
             content: 'Hello world',
         }
     }))
+    if (message.type === InteractionType.Ping)
+        console.log("ping", message)
+    return new Response(JSON.stringify({
+        type: InteractionResponseType.Pong,
+    }))
 }
 
