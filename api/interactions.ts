@@ -21,7 +21,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
     await verify(req)
 
-    const message = req.body as { type: InteractionType, data: APIInteractionResponse };
+    const message = JSON.parse(req.body) as { type: InteractionType, data: APIInteractionResponse };
     if (message.type === InteractionType.APPLICATION_COMMAND)
         console.log(message)
     return new Response(JSON.stringify({
