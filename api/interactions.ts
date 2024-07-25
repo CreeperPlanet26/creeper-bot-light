@@ -6,6 +6,8 @@ import { APIInteractionResponse } from "discord.js";
 import { RESTPostAPIInteractionCallbackJSONBody } from "discord-api-types/v10";
 import { verify } from "../src/verify";
 
+process.env.NODE_NO_WARNINGS = 'stream/web';
+
 export async function GET(req: Request) {
     const signature = req.headers.get('X-Signature-Ed25519');
     const timestamp = req.headers.get('X-Signature-Timestamp');
