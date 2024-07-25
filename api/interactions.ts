@@ -19,10 +19,12 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
-    await verify(req)
+    const txt = await req.text()
+    await verify(req, txt)
 console.log("body", req.body)
 console.log(req)
-    const message = JSON.parse(req.body) as { type: InteractionType, data: APIInteractionResponse };
+console.log("txt", txt)
+    const message = JSON.parse(txt) as { type: InteractionType, data: APIInteractionResponse };
     if (message.type === InteractionType.APPLICATION_COMMAND)
         console.log(message)
     return new Response(JSON.stringify({
