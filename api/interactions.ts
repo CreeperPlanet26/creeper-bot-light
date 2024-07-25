@@ -25,7 +25,7 @@ console.log("body", req.body)
 console.log(req)
 console.log("txt", txt)
     const message = JSON.parse(txt) as { type: InteractionType, data: APIInteractionResponse };
-    if (message.type === InteractionType.APPLICATION_COMMAND)
+    if (message.type === InteractionType.APPLICATION_COMMAND) {
         console.log(message)
     return new Response(JSON.stringify({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -33,10 +33,12 @@ console.log("txt", txt)
             content: 'Hello world',
         }
     }))
-    if (message.type === InteractionType.PING)
+    }
+    if (message.type === InteractionType.PING) {
         console.log("ping", message)
     return new Response(JSON.stringify({
         type: PONG,
     }))
+    }
 }
 
