@@ -37,7 +37,7 @@ console.log("txt", txt)
     if (message.type === InteractionType.PING) {
         console.log("ping", message)
     return new Response(JSON.stringify({
-        type: PONG,
+        type: InteractionResponseType.PONG,
     }))
     }
 }
