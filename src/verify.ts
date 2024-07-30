@@ -30,6 +30,8 @@ const isVerified = nacl.sign.detached.verify(
     Buffer.from(PUBLIC_KEY, "hex")
 );
 
+     console.log("verifed?", isVerifed)
+
 if (!isVerified) 
      return new Response("Bad request signature", { status: 400, })
     
