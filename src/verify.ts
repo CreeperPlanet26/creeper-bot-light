@@ -32,7 +32,8 @@ const isVerified = nacl.sign.detached.verify(
 
      console.log("verifed?", isVerified)
 
-if (!isVerified) 
+if (!isVerified) {
+    throw new Error("not verified")
      return new Response("Bad request signature", { status: 400, })
-    
+} 
 }
