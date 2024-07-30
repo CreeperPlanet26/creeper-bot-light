@@ -20,6 +20,8 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
+ console.log(mongoose)
+ console.log(mongoose.connection)
     const txt = await req.text()
     await verify(req, txt)
     console.log("body", req.body)
