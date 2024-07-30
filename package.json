@@ -11,7 +11,8 @@
     "dotenv": "^16.4.5",
     "mongoose": "^8.4.4",
     "typescript": "^5.5.2",
-    "yarn": "^1.22.22"
+    "yarn": "^1.22.22",
+    "tweetnacl", "^1.0.3"
   },
   "scripts": {
     "watch": "nodemon --exec vercel dev"
