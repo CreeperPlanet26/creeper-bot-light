@@ -1,4 +1,4 @@
-// import "../src/database"
+ import "../src/database"
 import { TEST_SERVER } from "../src";
 import mongoose from "mongoose";
 import { verifyKey, InteractionResponseType, InteractionType, InteractionResponseFlags } from "discord-interactions";
