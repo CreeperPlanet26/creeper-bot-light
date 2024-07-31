@@ -1,6 +1,6 @@
- import "../src/database"
+//  import "../src/database"
 import { TEST_SERVER } from "../src";
-import mongoose from "mongoose";
+// import mongoose from "mongoose";
 import { verifyKey, InteractionResponseType, InteractionType, InteractionResponseFlags } from "discord-interactions";
 import { APIInteractionResponse } from "discord.js";
 import { RESTPostAPIInteractionCallbackJSONBody } from "discord-api-types/v10";
@@ -20,8 +20,8 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
- console.log(mongoose)
- console.log(mongoose.connection)
+    //  console.log(mongoose)
+    //  console.log(mongoose.connection)
     const txt = await req.text()
     await verify(req, txt)
     console.log("body", req.body)
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
             data: {
                 content: 'Hello world',
             }
-        }))
+        })
     }
 
     if (message.type === InteractionType.PING) {

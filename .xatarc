@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://Creeper-s-workspace-575val.us-east-1.xata.sh/db/test",
+  "codegen": {
+    "output": "src/xata.ts"
+  }
+}
