@@ -1,9 +1,10 @@
-import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 
 export const messagesTable = pgTable('messages_table', {
     id: text('id').primaryKey(),
     content: text('content').notNull(),
+    cursor: boolean("cursor").notNull(),
     channelId: text('channel_id').notNull(),
     timestamp: timestamp('timestamp').notNull(),
     reference: text('reference').references(() => messagesTable.id),
