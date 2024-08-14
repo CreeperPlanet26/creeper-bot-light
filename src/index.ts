@@ -221,6 +221,12 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
 
 
         for (const [_, msg] of coll) {
+            if (msg.id !== untilId) {
+                messages.push(msg)
+                if (msg.reference?.messageId) referencedMessages.push(msg.reference)
+
+            }
+            
             if (msg.id === untilId) {
                 const r = messages.map(m => ({
                     authorId: m.author.id,
@@ -238,9 +244,6 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
                         .map(item => [item.id, item])
                 ).values());
             }
-
-            messages.push(msg)
-            if (msg.reference?.messageId) referencedMessages.push(msg.reference)
         }
 
         console.log("message length after loop", messages.length)
