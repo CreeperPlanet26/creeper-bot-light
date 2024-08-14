@@ -178,10 +178,9 @@ async function saveCursorAndAbove(i: MessageContextMenuCommandInteraction<CacheT
 
         console.log(msgs.length, "msgs length", "fetched length", fetched?.length)
         if (fetched?.length > 0) {
-            const c = msgs.findIndex(m => m.id === cursorRows[index].id)
-            if (c > 0) msgs[c].cursor = false;
-
             msgs = msgs.concat(fetched);
+            const c = msgs.findIndex(m => m.id === cursorRows[index].id)
+            if (c > -1) msgs[c].cursor = false;
         }
 
     }
