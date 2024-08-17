@@ -150,7 +150,7 @@ async function saveNewestToOldest(i: MessageContextMenuCommandInteraction<CacheT
         .orderBy(asc(messagesTable.timestamp))
         .limit(1)
 
-    const msgs = oldestRow ? await fetchMessages(i, oldestRow.id) : null
+    const msgs = oldestRow.length ? await fetchMessages(i, oldestRow.id) : null
 
     if (!msgs) {
         i.channel.send("Old messages already installed")
