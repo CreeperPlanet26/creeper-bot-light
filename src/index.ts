@@ -172,7 +172,7 @@ async function saveCursorAndAbove(i: MessageContextMenuCommandInteraction<CacheT
 
     let msgs: MessagesTable[] = [];
     for (const index in cursorRows) {
-
+// can either handle time limit or use last message cursor to determine. might not work due to fetched references
         const fetched = cursorRows[Number(index) + 1]?.id ? await fetchMessages(i, cursorRows[index].id, cursorRows[Number(index) + 1].id)
             : await fetchMessages(i, cursorRows[index].id)
 
@@ -196,7 +196,7 @@ async function saveCursorAndAbove(i: MessageContextMenuCommandInteraction<CacheT
     await db.insert(messagesTable).values(msgs).onConflictDoUpdate({ target: messagesTable.id, set: { cursor: sql.raw(`excluded.${messagesTable.cursor.name}`) } })
 
 
-
+should return after the loop is done and there is no msgs at all
     if (!msgs[msgs.length - 1].cursor) return i.channel.send(`Finished installed cursor ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()} (${cursorRows.length}).`)
     return i.channel.send(`Only installed cursor ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()} (${cursorRows.length}). Re-run the command to download the rest.`)
 }
