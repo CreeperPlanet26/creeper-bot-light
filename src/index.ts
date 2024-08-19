@@ -8,6 +8,7 @@ import { and, asc, desc, eq, lt, max, sql } from "drizzle-orm";
 import { Client as PgClient } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { before } from "node:test";
+import { performDFS } from "./dfs";
 
 export const TEST_SERVER = "640262033329356822";
 
@@ -23,7 +24,7 @@ const pgClient = new PgClient({
     connectionString: process.env.DATABASE_URI,
 });
 pgClient.connect();
-const db = drizzle(pgClient);
+export const db = drizzle(pgClient);
 
 console.log('running in dev')
 
@@ -62,6 +63,7 @@ client.on("interactionCreate", async (i) => {
     await saveNewestToOldest(i)
     await saveCursorAndAbove(i)
     await fetchNewestToNewest(i)
+    console.log(await performDFS(i, client))
 
     // fetch entire channel history for first time. check db here if not already saved. update it otherwise. Fetch after the initial message if there is already data in db. Should not have [message]
     // try to finish installing top chunk of channel if not done already. (oldest in db and keep going up)
@@ -224,7 +226,7 @@ async function saveCursorAndAbove(i: MessageContextMenuCommandInteraction<CacheT
 
 async function fetchNewestToNewest(i: MessageContextMenuCommandInteraction<CacheType>) {
     const [newestRow] = await db
-        .select({ id: messagesTable.id })
+        .select({ id: messagesTable.id, timestamp: messagesTable.timestamp })
         .from(messagesTable)
         .where(eq(messagesTable.channelId, i.channel.id))
         .orderBy(desc(messagesTable.timestamp))
@@ -232,12 +234,15 @@ async function fetchNewestToNewest(i: MessageContextMenuCommandInteraction<Cache
 
     const msgs = await fetchMessages(i, null, newestRow ? newestRow.id : null)
 
+    msgs.forEach(m => console.log(m.id, m.timestamp.toLocaleString()))
+    console.log(newestRow.timestamp.toLocaleString(), "newest row")
+
     if (!msgs.length) {
         i.channel.send("New messages already installed")
         return []
     }
 
-    await db.insert(messagesTable).values(msgs);
+    await db.insert(messagesTable).values(msgs).onConflictDoNothing()
     if (!msgs[msgs.length - 1].cursor) return i.channel.send(`Finished installed new ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}.`)
     return i.channel.send(`Only installed new ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}. Re-run the command to download the rest.`)
 }
