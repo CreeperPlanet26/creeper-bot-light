@@ -4,9 +4,10 @@ import { CacheType, Client, Collection, FetchMessagesOptions, GatewayIntentBits,
 import { replyFetcherCommand } from "./replyFetcherCommand";
 // import { db } from "./db";
 import { MessagesTable, messagesTable } from "./schema";
-import { and, asc, desc, eq, max, sql } from "drizzle-orm";
+import { and, asc, desc, eq, lt, max, sql } from "drizzle-orm";
 import { Client as PgClient } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
+import { before } from "node:test";
 
 export const TEST_SERVER = "640262033329356822";
 
@@ -60,6 +61,7 @@ client.on("interactionCreate", async (i) => {
 
     await saveNewestToOldest(i)
     await saveCursorAndAbove(i)
+    await fetchNewestToNewest(i)
 
     // fetch entire channel history for first time. check db here if not already saved. update it otherwise. Fetch after the initial message if there is already data in db. Should not have [message]
     // try to finish installing top chunk of channel if not done already. (oldest in db and keep going up)
@@ -150,7 +152,7 @@ async function saveNewestToOldest(i: MessageContextMenuCommandInteraction<CacheT
         .orderBy(asc(messagesTable.timestamp))
         .limit(1)
 
-    const msgs = oldestRow.length ? await fetchMessages(i, oldestRow.id) : null
+    const msgs = oldestRow ? await fetchMessages(i, oldestRow.id) : null
 
     if (!msgs) {
         i.channel.send("Old messages already installed")
@@ -164,69 +166,108 @@ async function saveNewestToOldest(i: MessageContextMenuCommandInteraction<CacheT
 // 
 async function saveCursorAndAbove(i: MessageContextMenuCommandInteraction<CacheType>) {
     const cursorRows = await db
-        .select({ id: messagesTable.id, timestamp: messagesTable.timestamp })
+        .select({ id: messagesTable.id, timestamp: messagesTable.timestamp, cursor: messagesTable.cursor, authorId: messagesTable.authorId, channelId: messagesTable.channelId })
         .from(messagesTable)
         .where(and(eq(messagesTable.channelId, i.channel.id), eq(messagesTable.cursor, true)))
-        .orderBy(asc(messagesTable.timestamp))
+        .orderBy(desc(messagesTable.timestamp))
     console.log(cursorRows.length, "cursor rows length intial", findDuplicatesWithCounts(cursorRows))
-
-    let msgs: MessagesTable[] = [];
+    const msgs = new Map<string, MessagesTable>();
     for (const index in cursorRows) {
-// can either handle time limit or use last message cursor to determine. might not work due to fetched references
-        const fetched = cursorRows[Number(index) + 1]?.id ? await fetchMessages(i, cursorRows[index].id, cursorRows[Number(index) + 1].id)
-            : await fetchMessages(i, cursorRows[index].id)
+        // can either handle time limit or use last message cursor to determine. might not work due to fetched references
+        // const fetched = cursorRows[Number(index) + 1]?.id ? await fetchMessages(i, cursorRows[index].id, cursorRows[Number(index) + 1].id)
+        //     : await fetchMessages(i, cursorRows[index].id, await db.select({ id: messagesTable.id, timestamp: messagesTable.timestamp })
+        //         .from(messagesTable)
+        //         .where(and(eq(messagesTable.channelId, i.channel.id), lt(messagesTable.timestamp, cursorRows[index].timestamp)))
+        //         .orderBy(desc(messagesTable.timestamp))[0])
+        console.log(cursorRows[index].id, (await db.select({ id: messagesTable.id, timestamp: messagesTable.timestamp })
+            .from(messagesTable)
+            .where(and(eq(messagesTable.channelId, i.channel.id), lt(messagesTable.timestamp, cursorRows[index].timestamp)))
+            .orderBy(desc(messagesTable.timestamp)))[0]?.id, "this is the id")
+        const fetched = await fetchMessages(i, cursorRows[index].id, (await db.select({ id: messagesTable.id, timestamp: messagesTable.timestamp })
+            .from(messagesTable)
+            .where(and(eq(messagesTable.channelId, i.channel.id), lt(messagesTable.timestamp, cursorRows[index].timestamp)))
+            .orderBy(desc(messagesTable.timestamp)))[0]?.id)
 
-        console.log(msgs.length, "msgs length", "fetched length", fetched?.length)
+
+        console.log(msgs.size, "msgs length", "fetched length", fetched?.length, "before", cursorRows[Number(index) + 1]?.id ? `${cursorRows[index].id} to ${cursorRows[Number(index) + 1].id}` : cursorRows[index].id)
         if (fetched?.length > 0) {
-            msgs = msgs.concat(fetched);
-            const c = msgs.findIndex(m => m.id === cursorRows[index].id)
-            if (c > -1) msgs[c].cursor = false;
-        }
+            cursorRows[index].cursor = false;
+            for (const m of fetched) msgs.set(m.id, m)
+            console.log("theee one that is being added to the map is ", cursorRows[index].id)
+            msgs.set(cursorRows[index].id, cursorRows[index])
 
+            if (new Date() > TIMEOUT + STARTED_AT) break;
+        }
     }
 
-    console.log(cursorRows)
+    console.log("these r the cursor rows", cursorRows, msgs.size, Array.from(msgs.values())[0], Array.from(msgs.values())[msgs.size - 1])
     console.log(findDuplicatesWithCounts(msgs))
+    //    for (const d of findDuplicatesWithCounts(msgs)) {
+    // msgs = Array.from(new Map(msgs.map(m => [m.id, m])).values())
+    console.log("is there still any duplicates", findDuplicatesWithCounts(msgs))
 
-    if (!msgs) {
-        i.channel.send("Cursor messages installed")
+    if (!msgs.size) {
+        i.channel.send("No cursor messages at this time")
+        return []
+    }
+    for (const c of cursorRows) console.log((await i.channel.messages.fetch(c.id)).url)
+
+
+    await db.insert(messagesTable).values(Array.from(msgs.values())).onConflictDoUpdate({ target: messagesTable.id, set: { cursor: sql.raw(`excluded.${messagesTable.cursor.name}`) } })
+
+
+    // should return after the loop is done and there is no msgs at all
+    if (!Array.from(msgs.values()).find(m => m.cursor)) return i.channel.send(`Finished installed cursor ${msgs.size} messages between ${Array.from(msgs.values())[msgs.size - 1].timestamp.toLocaleString()} and ${Array.from(msgs.values())[0].timestamp.toLocaleString()} (${cursorRows.length}).`)
+    return i.channel.send(`Only installed cursor ${msgs.size} messages between ${Array.from(msgs.values())[msgs.size - 1].timestamp.toLocaleString()} and ${Array.from(msgs.values())[0].timestamp.toLocaleString()} (${cursorRows.length}). Re-run the command to download the rest.`)
+
+}
+
+async function fetchNewestToNewest(i: MessageContextMenuCommandInteraction<CacheType>) {
+    const [newestRow] = await db
+        .select({ id: messagesTable.id })
+        .from(messagesTable)
+        .where(eq(messagesTable.channelId, i.channel.id))
+        .orderBy(desc(messagesTable.timestamp))
+        .limit(1)
+
+    const msgs = await fetchMessages(i, null, newestRow ? newestRow.id : null)
+
+    if (!msgs.length) {
+        i.channel.send("New messages already installed")
         return []
     }
 
-    await db.insert(messagesTable).values(msgs).onConflictDoUpdate({ target: messagesTable.id, set: { cursor: sql.raw(`excluded.${messagesTable.cursor.name}`) } })
-
-
-should return after the loop is done and there is no msgs at all
-    if (!msgs[msgs.length - 1].cursor) return i.channel.send(`Finished installed cursor ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()} (${cursorRows.length}).`)
-    return i.channel.send(`Only installed cursor ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()} (${cursorRows.length}). Re-run the command to download the rest.`)
+    await db.insert(messagesTable).values(msgs);
+    if (!msgs[msgs.length - 1].cursor) return i.channel.send(`Finished installed new ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}.`)
+    return i.channel.send(`Only installed new ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}. Re-run the command to download the rest.`)
 }
 
 // newest to oldest. before & until not included
 async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>, beforeId?: string, untilId?: string): Promise<MessagesTable[]> {
+    console.log(beforeId, untilId, "this is the id")
     let coll: Collection<string, Message>;
     let messages = [];
-    const referencedMessages = [];
+    const referencedMessages: MessageReference[] = [];
 
     if (!beforeId) coll = await i.channel.messages.fetch({ limit: 1 })
 
     else coll = await i.channel.messages.fetch({ limit: 100, before: beforeId })
     beforeId = coll.last()?.id;
-    let interval;
+    const interval = setInterval(() => {
+        i.editReply(`Downloading ${messages.length} messages between ${messages[messages.length - 1].createdAt.toLocaleString()} and ${messages[0].createdAt.toLocaleString()}... + ${Date.now()}`)
+    }, 20000)
 
     while (beforeId && Date.now() < TIMEOUT + STARTED_AT) {
-        console.log(messages.length)
-        interval = setInterval(() => {
-            i.editReply(`Downloading ${messages.length} messages between ${messages[messages.length - 1].createdAt.toLocaleString()} and ${messages[0].createdAt.toLocaleString()}...`)
-        }, 20000)
-
+        console.log("messages array length", messages.length, "coll length", coll.size)
 
         for (const [_, msg] of coll) {
+            // console.log("this is the message id", msg.id, msg.createdAt.toLocaleString(), "this is the until id", untilId)
             if (msg.id !== untilId) {
                 messages.push(msg)
                 if (msg.reference?.messageId) referencedMessages.push(msg.reference)
 
             }
-            
+
             if (msg.id === untilId) {
                 const r = messages.map(m => ({
                     authorId: m.author.id,
@@ -234,6 +275,7 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
                     channelId: m.channelId,
                     timestamp: m.createdAt,
                     reference: m.reference?.messageId,
+                    content: m.content,
                     cursor: false
                 }));
 
@@ -246,18 +288,17 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
             }
         }
 
-        console.log("message length after loop", messages.length)
-
         // coll = (await i.channel.messages.fetch({ limit: 100, before: beforeId })) //moved
 
         if (coll.size === 0) {
-            console.log("the size is zero")
+            console.log("the size is zero!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             const r = messages.map(m => ({
                 authorId: m.author.id,
                 id: m.id,
                 channelId: m.channelId,
                 timestamp: m.createdAt,
                 reference: m.reference?.messageId,
+                content: m.content,
                 cursor: false
             }));
 
@@ -270,6 +311,7 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
         }
         coll = (await i.channel.messages.fetch({ limit: 100, before: beforeId }))
 
+
         if (!coll.size) {
             // test
             const r = messages.map(m => ({
@@ -278,6 +320,7 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
                 channelId: m.channelId,
                 timestamp: m.createdAt,
                 reference: m.reference?.messageId,
+                content: m.content,
                 cursor: false
             }));
 
@@ -287,13 +330,20 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
                     .map(item => [item.id, item])
             ).values());
         }
-        console.log("this is the coll", coll.size, messages.length)
+        console.log("after loop", messages.length, coll.size)
         beforeId = coll.last().id;
     }
 
     clearInterval(interval);
     if (Date.now() > TIMEOUT + STARTED_AT) {
+        console.log("timeout reached")
         if (!messages.length) return [];
+
+        for (const msg of messages) {
+            if (msg.reference?.messageId && !referencedMessages.find(m => m.messageId === msg.reference.messageId)) {
+                console.log("ADDED ITEM!!!!!!"); referencedMessages.push(msg.reference)
+            }
+        }
 
         console.log("this is the message legnth", messages.length)
         console.log("this is the coll legnth", coll.size)
@@ -303,6 +353,7 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
             channelId: m.channelId,
             timestamp: m.createdAt,
             reference: m.reference?.messageId,
+            content: m.content,
             cursor: false
         }));
         r[r.length - 1].cursor = true;
@@ -327,14 +378,20 @@ async function fetchReferences(i: MessageContextMenuCommandInteraction<CacheType
     for (const r of references) {
         const c = <TextChannel>await client.channels.fetch(r.channelId);
         const m = await c.messages.fetch(r.messageId);
+
         msgs.push({
             authorId: m.author.id,
             id: m.id,
             channelId: m.channelId,
             timestamp: m.createdAt,
             reference: m.reference?.messageId,
-            cursor: true
+            content: m.content,
+            cursor: false,
         })
+
+        if (m.reference?.messageId) {
+            for (const msg of await fetchReferences(i, [m.reference])) msgs.push(msg)
+        }
     }
 
     return msgs

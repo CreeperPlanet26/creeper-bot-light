@@ -9,6 +9,7 @@ export const messagesTable = pgTable('messages_table', {
     channelId: text('channel_id').notNull(),
     timestamp: timestamp('timestamp').notNull(),
     reference: text('reference').references(() => messagesTable.id),
+    // reference: text('reference'),
 })
 
 
