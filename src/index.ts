@@ -156,7 +156,7 @@ async function saveNewestToOldest(i: MessageContextMenuCommandInteraction<CacheT
 
     const msgs = oldestRow ? await fetchMessages(i, oldestRow.id) : null
 
-    if (!msgs) {
+    if (!msgs?.length) {
         i.channel.send("Old messages already installed")
         return []
     }
@@ -234,7 +234,7 @@ async function fetchNewestToNewest(i: MessageContextMenuCommandInteraction<Cache
 
     const msgs = await fetchMessages(i, null, newestRow ? newestRow.id : null)
 
-    msgs.forEach(m => console.log(m.id, m.timestamp.toLocaleString()))
+    msgs?.forEach(m => console.log(m.id, m.timestamp.toLocaleString()))
     console.log(newestRow.timestamp.toLocaleString(), "newest row")
 
     if (!msgs.length) {
