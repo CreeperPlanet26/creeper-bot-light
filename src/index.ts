@@ -17,7 +17,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBit
 
 // if (process.env.NODE_ENV !== "production") client.login(process.env.DEV_BOT_TOKEN);
 
-const TIMEOUT = 2000;
+const TIMEOUT = 30000;
 let STARTED_AT;
 
 const pgClient = new PgClient({
@@ -235,7 +235,7 @@ async function fetchNewestToNewest(i: MessageContextMenuCommandInteraction<Cache
     const msgs = await fetchMessages(i, null, newestRow ? newestRow.id : null)
 
     msgs?.forEach(m => console.log(m.id, m.timestamp.toLocaleString()))
-    console.log(newestRow.timestamp.toLocaleString(), "newest row")
+    console.log(newestRow?.timestamp.toLocaleString(), "newest row")
 
     if (!msgs.length) {
         i.channel.send("New messages already installed")
@@ -259,7 +259,7 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
     else coll = await i.channel.messages.fetch({ limit: 100, before: beforeId })
     beforeId = coll.last()?.id;
     const interval = setInterval(() => {
-        i.editReply(`Downloading ${messages.length} messages between ${messages[messages.length - 1].createdAt.toLocaleString()} and ${messages[0].createdAt.toLocaleString()}... + ${Date.now()}`)
+        i.editReply(`Downloading ${messages.length} messages between ${messages[messages.length - 1].createdAt.toLocaleString()} and ${messages[0].createdAt.toLocaleString()}... + ${new Date().toLocaleString()}`)
     }, 20000)
 
     while (beforeId && Date.now() < TIMEOUT + STARTED_AT) {
