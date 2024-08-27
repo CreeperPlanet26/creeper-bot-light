@@ -36,7 +36,7 @@ client.on("ready", async () => {
     // console.log((await channel.messages.fetch({ limit: 1 })).first())
 })
 
-const onInteractionCreate = async (i: Interaction) => {
+export const onInteractionCreate = async (i: Interaction) => {
     STARTED_AT = Date.now();
     console.time('interactionCreate')
     if (!i.isMessageContextMenuCommand() || i.commandName !== replyFetcherCommand.name) return;
@@ -76,12 +76,12 @@ async function saveNewestToOldest(i: MessageContextMenuCommandInteraction<CacheT
     const msgs = oldestRow ? await fetchMessages(i, oldestRow.id) : null
 
     if (!msgs?.length) {
-        i.channel.send("Old messages already installed")
+        i.reply("Old messages already installed")
         return []
     }
     await db.insert(messagesTable).values(msgs);
-    if (!msgs[msgs.length - 1].cursor) return i.channel.send(`Finished installed old ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}.`)
-    return i.channel.send(`Only installed old ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}. Re-run the command to download the rest.`)
+    if (!msgs[msgs.length - 1].cursor) return i.editReply(`Finished installed old ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}.`)
+    return i.editReply(`Only installed old ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}. Re-run the command to download the rest.`)
 }
 
 // 
@@ -128,7 +128,7 @@ async function saveCursorAndAbove(i: MessageContextMenuCommandInteraction<CacheT
     console.log("is there still any duplicates", findDuplicatesWithCounts(msgs))
 
     if (!msgs.size) {
-        i.channel.send("No cursor messages at this time")
+        i.editReply("No cursor messages at this time")
         return []
     }
     for (const c of cursorRows) console.log((await i.channel.messages.fetch(c.id)).url)
@@ -138,8 +138,8 @@ async function saveCursorAndAbove(i: MessageContextMenuCommandInteraction<CacheT
 
 
     // should return after the loop is done and there is no msgs at all
-    if (!Array.from(msgs.values()).find(m => m.cursor)) return i.channel.send(`Finished installed cursor ${msgs.size} messages between ${Array.from(msgs.values())[msgs.size - 1].timestamp.toLocaleString()} and ${Array.from(msgs.values())[0].timestamp.toLocaleString()} (${cursorRows.length}).`)
-    return i.channel.send(`Only installed cursor ${msgs.size} messages between ${Array.from(msgs.values())[msgs.size - 1].timestamp.toLocaleString()} and ${Array.from(msgs.values())[0].timestamp.toLocaleString()} (${cursorRows.length}). Re-run the command to download the rest.`)
+    if (!Array.from(msgs.values()).find(m => m.cursor)) return i.editReply(`Finished installed cursor ${msgs.size} messages between ${Array.from(msgs.values())[msgs.size - 1].timestamp.toLocaleString()} and ${Array.from(msgs.values())[0].timestamp.toLocaleString()} (${cursorRows.length}).`)
+    return i.editReply(`Only installed cursor ${msgs.size} messages between ${Array.from(msgs.values())[msgs.size - 1].timestamp.toLocaleString()} and ${Array.from(msgs.values())[0].timestamp.toLocaleString()} (${cursorRows.length}). Re-run the command to download the rest.`)
 
 }
 
@@ -157,13 +157,13 @@ async function fetchNewestToNewest(i: MessageContextMenuCommandInteraction<Cache
     console.log(newestRow?.timestamp.toLocaleString(), "newest row")
 
     if (!msgs.length) {
-        i.channel.send("New messages already installed")
+        i.editReply("New messages already installed")
         return []
     }
 
     await db.insert(messagesTable).values(msgs).onConflictDoNothing()
-    if (!msgs[msgs.length - 1].cursor) return i.channel.send(`Finished installed new ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}.`)
-    return i.channel.send(`Only installed new ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}. Re-run the command to download the rest.`)
+    if (!msgs[msgs.length - 1].cursor) return i.editReply(`Finished installed new ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}.`)
+    return i.editReply(`Only installed new ${msgs.length} messages between ${msgs[msgs.length - 1].timestamp.toLocaleString()} and ${msgs[0].timestamp.toLocaleString()}. Re-run the command to download the rest.`)
 }
 
 // newest to oldest. before & until not included
@@ -321,12 +321,6 @@ async function fetchReferences(i: MessageContextMenuCommandInteraction<CacheType
     return msgs
 }
 
-
-async function fetchMessageURL(msgs: MessagesTable[], i: Interaction) {
-    return i.channel.send(`Only installed old ${msgs.length} messages between [${msgs[msgs.length - 1].timestamp.toLocaleString()}](${(await i.channel.messages.fetch(msgs[msgs.length - 1].id)).url}) and [${msgs[0].timestamp.toLocaleString()}](${(await i.channel.messages.fetch(msgs[0].id)).url}). Re-run the command to download the rest.`)
-
-
-}
 
 // // Register Slash Commands
 // client.application.commands.set([countingCommand, fortniteCommand, avatarCommand, replyFetcherCommand])

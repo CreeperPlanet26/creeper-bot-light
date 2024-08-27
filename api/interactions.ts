@@ -1,9 +1,9 @@
 //  import "../src/database"
-import { TEST_SERVER } from "../src";
+import { onInteractionCreate, TEST_SERVER } from "../src";
 // import mongoose from "mongoose";
 import { verifyKey, InteractionResponseType, InteractionType, InteractionResponseFlags } from "discord-interactions";
 import { APIInteractionResponse } from "discord.js";
-import * as InteractionCreateAction from "discord.js/src/client/actions/interactionCreate";
+const InteractionCreateAction = require("discord.js/src/client/actions/interactionCreate");
 import { RESTPostAPIInteractionCallbackJSONBody } from "discord-api-types/v10";
 import { verify } from "../src/verify";
 
@@ -36,6 +36,7 @@ export async function POST(req: Request) {
 
         const i = new InteractionCreateAction.handle(message)
         console.log("this is I", i)
+        await onInteractionCreate(i)
 
 
         return Response.json({
