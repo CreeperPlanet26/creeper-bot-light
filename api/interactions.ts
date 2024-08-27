@@ -5,7 +5,7 @@ import { verifyKey, InteractionResponseType, InteractionType, InteractionRespons
 import { verify } from "../src/verify";
 import { APIInteractionResponse, ApplicationCommand, ApplicationCommandType, AutocompleteInteraction, BaseInteraction, ButtonInteraction, ChannelSelectMenuInteraction, ChatInputCommandInteraction, Client, ComponentType, Events, GatewayIntentBits, MentionableSelectMenuInteraction, MessageContextMenuCommandInteraction, ModalSubmitInteraction, Partials, RoleSelectMenuInteraction, StringSelectMenuInteraction, UserContextMenuCommandInteraction, UserSelectMenuInteraction } from "discord.js";
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] })
+const client = new Client({ intents: [GatewayIntentBits.Guilds] })
 console.log("Logging it in")
 client.login(process.env.BOT_TOKEN)
 
