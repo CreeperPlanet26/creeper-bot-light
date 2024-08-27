@@ -45,7 +45,7 @@ export const onInteractionCreate = async (i: Interaction) => {
     console.log("Interaction started at.... ", STARTED_AT)
     console.time('interactionCreate')
     console.log("is this command a context menu", i.isMessageContextMenuCommand())
-    console.log("is this command the same name AND context menu", i.isMessageContextMenuCommand() && i.commandName === replyFetcherCommand.name)
+    console.log("is this command the same name AND context menu", i.isMessageContextMenuCommand() && i.commandName === replyFetcherCommand.name, i.channel)
     // console.log("is this command the same name OR context menu", i.isMessageContextMenuCommand() || i.commandName === replyFetcherCommand.name)
     if (!i.isMessageContextMenuCommand() || i.commandName !== replyFetcherCommand.name) console.log("command is not the one.")
     if (!i.isMessageContextMenuCommand() || i.commandName !== replyFetcherCommand.name) return;
