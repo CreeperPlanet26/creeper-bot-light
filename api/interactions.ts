@@ -38,17 +38,17 @@ export async function POST(req: Request) {
         const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), message)
         console.log("this is I", i)
         // console.log("this is i name", i.commandName)
-        i.isMessageContextMenuCommand() &&
+        //@ts-ignore
 
-            await onInteractionCreate(i)
+        await onInteractionCreate(i)
 
 
-        return Response.json({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-                content: 'Hello world',
-            }
-        })
+        // return Response.json({
+        //     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        //     data: {
+        //         content: 'Hello world',
+        //     }
+        // })
     }
 
     if (message.type === InteractionType.PING) {
