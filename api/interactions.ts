@@ -40,8 +40,8 @@ export async function POST(req: Request) {
         // console.log("this is i name", i.commandName)
 
         // @ts-ignore
-        if (i.isMessageContextMenuCommand() && console.log(i.commandName))
-            await onInteractionCreate(i)
+        // if (i.isMessageContextMenuCommand() && console.log(i.commandName))
+        await onInteractionCreate(i)
 
 
         // return Response.json({
