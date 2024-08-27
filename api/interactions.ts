@@ -34,7 +34,8 @@ export async function POST(req: Request) {
         console.log("resoonding with type", InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
 
         //@ts-ignore
-        const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), { ...message.data, user: message?.data?.member?.user })
+        // const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), { ...message.data, user: message?.data?.member?.user })
+        const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), message)
         console.log("this is I", i)
         // console.log("this is i name", i.commandName)
         i.isMessageContextMenuCommand() &&
