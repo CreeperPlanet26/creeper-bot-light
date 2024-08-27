@@ -6,6 +6,12 @@ import { verify } from "../src/verify";
 import { APIInteractionResponse, ApplicationCommand, ApplicationCommandType, AutocompleteInteraction, BaseInteraction, ButtonInteraction, ChannelSelectMenuInteraction, ChatInputCommandInteraction, Client, ComponentType, Events, GatewayIntentBits, MentionableSelectMenuInteraction, MessageContextMenuCommandInteraction, ModalSubmitInteraction, Partials, RoleSelectMenuInteraction, StringSelectMenuInteraction, UserContextMenuCommandInteraction, UserSelectMenuInteraction } from "discord.js";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] })
+console.log("Logging it in")
+client.login(process.env.BOT_TOKEN)
+
+client.on("ready", () => {
+    console.log("interactions.ts: is logged in", client.readyAt.toLocaleString())
+})
 
 export async function GET(req: Request) {
     const signature = req.headers.get('X-Signature-Ed25519');
@@ -33,11 +39,6 @@ export async function POST(req: Request) {
 
 
     if (message.type === InteractionType.APPLICATION_COMMAND) {
-        client.login(process.env.BOT_TOKEN)
-
-
-
-
 
 
         console.log("the command is an applicaiton responding", message)
@@ -56,20 +57,13 @@ export async function POST(req: Request) {
         console.timeEnd("start of function")
 
 
-        client.on("ready", async () => {
-            console.log("is looged in interaction", client.readyAt)
-
-            await onInteractionCreate(i, client)
 
 
+        console.log("is looged in interaction", client.readyAt)
 
-            // return Response.json({
-            //     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            //     data: {
-            //         content: 'Hello world',
-            //     }
-            // })
-        })
+        await onInteractionCreate(i, client)
+
+
     }
 
     if (message.type === InteractionType.PING) {

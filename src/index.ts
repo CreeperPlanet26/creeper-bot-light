@@ -55,7 +55,7 @@ export const onInteractionCreate = async (i: Interaction, c?) => {
     if (!i.isMessageContextMenuCommand() || i.commandName !== replyFetcherCommand.name) console.log("command is not the one.")
     if (!i.isMessageContextMenuCommand() || i.commandName !== replyFetcherCommand.name) return;
     // console.log("deferring reply...")
-    // await i.deferReply();
+    // i.deferReply();
 
     // fetch entire channel history for first time. check db here if not already saved. update it otherwise. Fetch after the initial message if there is already data in db. Should not have [message]
     // try to finish installing top chunk of channel if not done already. (oldest in db and keep going up)
