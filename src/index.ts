@@ -85,7 +85,7 @@ async function saveNewestToOldest(i: MessageContextMenuCommandInteraction<CacheT
     const msgs = oldestRow ? await fetchMessages(i, oldestRow.id) : null
 
     if (!msgs?.length) {
-        i.reply("Old messages already installed")
+        i.editReply("Old messages already installed")
         return []
     }
     await db.insert(messagesTable).values(msgs);
