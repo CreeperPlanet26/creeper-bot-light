@@ -34,34 +34,41 @@ export async function POST(req: Request) {
 
     if (message.type === InteractionType.APPLICATION_COMMAND) {
         client.login(process.env.BOT_TOKEN)
-        console.log("the command is an applicaiton responding", message)
-        console.log("resoonding with type", InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
 
-        //@ts-ignore
-        // const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), { ...message.data, user: message?.data?.member?.user })
 
-        const i = new Test(client, message)
-        console.log("this is I", i)
-        // console.log("this is i name", i.commandName)
-
-        i.isCommand() && console.log("command name", i, "channel", i.channel)
-        console.log("deferring reply...")
-        i.deferReply();
-
-        await sleep(2000)
-
-        console.log("is looged in interaction", client.readyAt)
-
-        await onInteractionCreate(i, client)
+        client.on("ready", async () => {
 
 
 
-        // return Response.json({
-        //     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        //     data: {
-        //         content: 'Hello world',
-        //     }
-        // })
+            console.log("the command is an applicaiton responding", message)
+            console.log("resoonding with type", InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
+
+            //@ts-ignore
+            // const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), { ...message.data, user: message?.data?.member?.user })
+
+            const i = new Test(client, message)
+            console.log("this is I", i)
+            // console.log("this is i name", i.commandName)
+
+            i.isCommand() && console.log("command name", i, "channel", i.channel)
+            console.log("deferring reply...")
+            i.deferReply();
+
+
+
+            console.log("is looged in interaction", client.readyAt)
+
+            await onInteractionCreate(i, client)
+
+
+
+            // return Response.json({
+            //     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            //     data: {
+            //         content: 'Hello world',
+            //     }
+            // })
+        })
     }
 
     if (message.type === InteractionType.PING) {
