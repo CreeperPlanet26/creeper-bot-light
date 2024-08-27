@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
 
         if (i.isMessageContextMenuCommand()) console.log("command name since builder is true", i.commandName)
-        if (i.type === 3) i.isCommand() && console.log("command name since type is 3", i.commandName)
+        i.isCommand() && console.log("command name", i.commandName)
         // @ts-ignore
         await onInteractionCreate(i)
 
