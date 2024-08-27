@@ -26,295 +26,163 @@ export async function performDFS(i: MessageContextMenuCommandInteraction<CacheTy
   const authorIdColumnExists = await columnExists('author_id', 'messages_table');
 
 
-  //   const query = sql`WITH RECURSIVE RepliesCTE AS (
-  //   SELECT
-  //     id,
-  //     content,
-  //     ${authorIdColumnExists ? sql`author_id AS authorId` : sql`NULL AS authorId`} ,
-  //     timestamp,
-  //     reference,
-  //     channel_id AS channelID
-  //   FROM
-  //     messages_table
-  //   WHERE
-  //     id = ${i.targetId}
-
-  //   UNION ALL
-
-  //   SELECT
-  //     m.id,
-  //     m.content,
-  //     ${authorIdColumnExists ? sql`m.author_id AS authorId` : sql`NULL AS authorId`} ,
-  //     m.timestamp,
-  //     m.reference,
-  //     m.channel_id AS channelID
-  //   FROM
-  //     messages_table m
-  //   INNER JOIN
-  //     RepliesCTE r
-  //   ON
-  //     m.reference = r.id
-  // ),
-  // AncestorsCTE AS (
-  //   SELECT
-  //     id,
-  //     content,
-  //     ${authorIdColumnExists ? sql`author_id AS authorId` : sql`NULL AS authorId`} ,
-  //     timestamp,
-  //     reference,
-  //     channel_id AS channelID
-  //   FROM
-  //     messages_table
-  //   WHERE
-  //     id = ${i.targetId}
-
-  //   UNION ALL
-
-  //   SELECT
-  //     m.id,
-  //     m.content,
-  //     ${authorIdColumnExists ? sql`m.author_id AS authorId` : sql`NULL AS authorId`} ,
-  //     m.timestamp,
-  //     m.reference,
-  //     m.channel_id AS channelID
-  //   FROM
-  //     messages_table m
-  //   INNER JOIN
-  //     AncestorsCTE a
-  //   ON
-  //     m.id = a.reference
-  // ),
-  // IndirectReferences AS (
-  //   SELECT DISTINCT
-  //     m.id,
-  //     m.content,
-  //     ${authorIdColumnExists ? sql`m.author_id AS authorId` : sql`NULL AS authorId`} ,
-  //     m.timestamp,
-  //     m.reference,
-  //     m.channel_id AS channelID
-  //   FROM
-  //     messages_table m
-  //   JOIN
-  //     (
-  //       SELECT id
-  //       FROM RepliesCTE
-  //       UNION
-  //       SELECT id
-  //       FROM AncestorsCTE
-  //     ) am
-  //   ON
-  //     -- Match IDs in the content, accounting for potential URL or other formatting
-  //     m.content LIKE '%' || am.id || '%'
-  // ),
-  // CombinedMessages AS (
-  //   SELECT DISTINCT
-  //     id,
-  //     content,
-  //     ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
-  //     timestamp,
-  //     reference,
-  //     channelID
-  //   FROM
-  //     RepliesCTE
-  //   UNION
-  //   SELECT DISTINCT
-  //     id,
-  //     content,
-  //     ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
-  //     timestamp,
-  //     reference,
-  //     channelID
-  //   FROM
-  //     AncestorsCTE
-  //   UNION
-  //   SELECT DISTINCT
-  //     id,
-  //     content,
-  //     ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
-  //     timestamp,
-  //     reference,
-  //     channelID
-  //   FROM
-  //     IndirectReferences
-  // ),
-  // LastMessage AS (
-  //   SELECT
-  //     id,
-  //     content,
-  //     ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
-  //     timestamp,
-  //     reference,
-  //     channelID
-  //   FROM
-  //     CombinedMessages
-  //   ORDER BY
-  //     timestamp DESC
-  //   LIMIT 1
-  // )
-  // SELECT
-  //   id,
-  //   content,
-  //   ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
-  //   timestamp,
-  //   reference,
-  //   channelID
-  // FROM
-  //   CombinedMessages
-  // ${authorIdColumnExists ? sql`
-  // WHERE NOT EXISTS (
-  //   SELECT 1
-  //   FROM LastMessage lm
-  //   WHERE CombinedMessages.id = lm.id
-  //     AND lm.authorId IN ('948700837373440061', '678712272209575946')
-  // )` : sql``}
-  // ORDER BY
-  //   timestamp DESC;
-  // `;
-
   const query = sql`
-WITH RECURSIVE RepliesCTE AS (
-  SELECT
-    id,
-    content,
-    ${authorIdColumnExists ? sql`author_id AS authorId` : sql`NULL AS authorId`} ,
-    timestamp,
-    reference,
-    channel_id AS channelID
-  FROM
-    messages_table
-  WHERE
-    id = ${i.targetId}
+  WITH RECURSIVE RepliesCTE AS (
+    SELECT
+      id,
+      content,
+      ${authorIdColumnExists ? sql`author_id AS authorId` : sql`NULL AS authorId`} ,
+      timestamp,
+      reference,
+      channel_id AS channelID
+    FROM
+      messages_table
+    WHERE
+      id = ${i.targetId}
 
-  UNION ALL
+    UNION ALL
 
-  SELECT
-    m.id,
-    m.content,
-    ${authorIdColumnExists ? sql`m.author_id AS authorId` : sql`NULL AS authorId`} ,
-    m.timestamp,
-    m.reference,
-    m.channel_id AS channelID
-  FROM
-    messages_table m
-  INNER JOIN
-    RepliesCTE r
-  ON
-    m.reference = r.id
-),
-AncestorsCTE AS (
-  SELECT
-    id,
-    content,
-    ${authorIdColumnExists ? sql`author_id AS authorId` : sql`NULL AS authorId`} ,
-    timestamp,
-    reference,
-    channel_id AS channelID
-  FROM
-    messages_table
-  WHERE
-    id = ${i.targetId}
+    SELECT
+      m.id,
+      m.content,
+      ${authorIdColumnExists ? sql`m.author_id AS authorId` : sql`NULL AS authorId`} ,
+      m.timestamp,
+      m.reference,
+      m.channel_id AS channelID
+    FROM
+      messages_table m
+    INNER JOIN
+      RepliesCTE r
+    ON
+      m.reference = r.id
+  ),
+  AncestorsCTE AS (
+    SELECT
+      id,
+      content,
+      ${authorIdColumnExists ? sql`author_id AS authorId` : sql`NULL AS authorId`} ,
+      timestamp,
+      reference,
+      channel_id AS channelID
+    FROM
+      messages_table
+    WHERE
+      id = ${i.targetId}
 
-  UNION ALL
+    UNION ALL
 
-  SELECT
-    m.id,
-    m.content,
-    ${authorIdColumnExists ? sql`m.author_id AS authorId` : sql`NULL AS authorId`} ,
-    m.timestamp,
-    m.reference,
-    m.channel_id AS channelID
-  FROM
-    messages_table m
-  INNER JOIN
-    AncestorsCTE a
-  ON
-    m.id = a.reference
-),
-IndirectReferences AS (
-  SELECT DISTINCT
-    m.id,
-    m.content,
-    ${authorIdColumnExists ? sql`m.author_id AS authorId` : sql`NULL AS authorId`} ,
-    m.timestamp,
-    m.reference,
-    m.channel_id AS channelID
-  FROM
-    messages_table m
-  JOIN
-    (
-      SELECT id
-      FROM RepliesCTE
-      UNION
-      SELECT id
-      FROM AncestorsCTE
-    ) am
-  ON
-    m.content LIKE '%' || am.id || '%'
-),
-CombinedMessages AS (
-  SELECT DISTINCT
-    id,
-    content,
-    ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
-    timestamp,
-    reference,
-    channelID
-  FROM
-    RepliesCTE
-  UNION
-  SELECT DISTINCT
-    id,
-    content,
-    ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
-    timestamp,
-    reference,
-    channelID
-  FROM
-    AncestorsCTE
-  UNION
-  SELECT DISTINCT
-    id,
-    content,
-    ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
-    timestamp,
-    reference,
-    channelID
-  FROM
-    IndirectReferences
-),
--- Ensuring we capture all messages related through replies or containing IDs
-AllRelevantMessages AS (
-  SELECT
-    id,
-    content,
-    ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
-    timestamp,
-    reference,
-    channelID
-  FROM
-    CombinedMessages
-  WHERE
-    EXISTS (
-      SELECT 1
-      FROM CombinedMessages c
-      WHERE CombinedMessages.content LIKE '%' || c.id || '%'
-    )
-  OR
-    EXISTS (
-      SELECT 1
-      FROM RepliesCTE r
-      WHERE CombinedMessages.id = r.id
-      OR CombinedMessages.content LIKE '%' || r.id || '%'
-    )
-  OR
-    EXISTS (
-      SELECT 1
-      FROM AncestorsCTE a
-      WHERE CombinedMessages.id = a.id
-      OR CombinedMessages.content LIKE '%' || a.id || '%'
-    )
-),
-LastMessage AS (
+    SELECT
+      m.id,
+      m.content,
+      ${authorIdColumnExists ? sql`m.author_id AS authorId` : sql`NULL AS authorId`} ,
+      m.timestamp,
+      m.reference,
+      m.channel_id AS channelID
+    FROM
+      messages_table m
+    INNER JOIN
+      AncestorsCTE a
+    ON
+      m.id = a.reference
+  ),
+  IndirectReferences AS (
+    SELECT DISTINCT
+      m.id,
+      m.content,
+      ${authorIdColumnExists ? sql`m.author_id AS authorId` : sql`NULL AS authorId`} ,
+      m.timestamp,
+      m.reference,
+      m.channel_id AS channelID
+    FROM
+      messages_table m
+    JOIN
+      (
+        SELECT id
+        FROM RepliesCTE
+        UNION
+        SELECT id
+        FROM AncestorsCTE
+      ) am
+    ON
+      m.content LIKE '%' || am.id || '%'
+  ),
+  CombinedMessages AS (
+    SELECT DISTINCT
+      id,
+      content,
+      ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
+      timestamp,
+      reference,
+      channelID
+    FROM
+      RepliesCTE
+    UNION
+    SELECT DISTINCT
+      id,
+      content,
+      ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
+      timestamp,
+      reference,
+      channelID
+    FROM
+      AncestorsCTE
+    UNION
+    SELECT DISTINCT
+      id,
+      content,
+      ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
+      timestamp,
+      reference,
+      channelID
+    FROM
+      IndirectReferences
+  ),
+  -- Ensuring we capture all messages related through replies or containing IDs
+  AllRelevantMessages AS (
+    SELECT
+      id,
+      content,
+      ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
+      timestamp,
+      reference,
+      channelID
+    FROM
+      CombinedMessages
+    WHERE
+      EXISTS (
+        SELECT 1
+        FROM CombinedMessages c
+        WHERE CombinedMessages.content LIKE '%' || c.id || '%'
+      )
+    OR
+      EXISTS (
+        SELECT 1
+        FROM RepliesCTE r
+        WHERE CombinedMessages.id = r.id
+        OR CombinedMessages.content LIKE '%' || r.id || '%'
+      )
+    OR
+      EXISTS (
+        SELECT 1
+        FROM AncestorsCTE a
+        WHERE CombinedMessages.id = a.id
+        OR CombinedMessages.content LIKE '%' || a.id || '%'
+      )
+  ),
+  LastMessage AS (
+    SELECT
+      id,
+      content,
+      ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
+      timestamp,
+      reference,
+      channelID
+    FROM
+      AllRelevantMessages
+    ORDER BY
+      timestamp DESC
+    LIMIT 1
+  )
   SELECT
     id,
     content,
@@ -324,29 +192,18 @@ LastMessage AS (
     channelID
   FROM
     AllRelevantMessages
+  ${authorIdColumnExists ? sql`
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM LastMessage lm
+    WHERE AllRelevantMessages.id = lm.id
+      AND lm.authorId IN ('948700837373440061', '678712272209575946')
+  )` : sql``}
   ORDER BY
-    timestamp DESC
-  LIMIT 1
-)
-SELECT
-  id,
-  content,
-  ${authorIdColumnExists ? sql`authorId` : sql`NULL AS authorId`} ,
-  timestamp,
-  reference,
-  channelID
-FROM
-  AllRelevantMessages
-${authorIdColumnExists ? sql`
-WHERE NOT EXISTS (
-  SELECT 1
-  FROM LastMessage lm
-  WHERE AllRelevantMessages.id = lm.id
-    AND lm.authorId IN ('948700837373440061', '678712272209575946')
-)` : sql``}
-ORDER BY
-  timestamp DESC;
-`
+    timestamp DESC;
+  `
+
+
 
   // Execute the query with the initial message ID
   const { rows } = await db.execute(query)
@@ -408,145 +265,6 @@ ORDER BY
 }
 
 
-
-// import { EmbedBuilder } from 'discord.js';
-
-// // Function to build a description string with nested replies
-// function buildDescription(node: any, indentLevel: number): string {
-//     const indent = ' '.repeat(indentLevel * 2); // Adjust indent size for each layer
-//     const arrow = '➡️'; // Arrow emoji
-//     let description = `${indent}${arrow} **Message ID**: ${node.id}\n${indent}**Content**: ${node.content}\n\n`;
-
-//     // Recursively add replies
-//     for (const reply of node.replies) {
-//         description += buildDescription(reply, indentLevel + 1);
-//     }
-
-//     return description;
-// }
-
-// // Function to send an embed with nested replies
-// async function sendRepliesEmbed(i: any, full: any[]) {
-//     const e = new EmbedBuilder()
-//         .setTitle('Message Replies')
-//         .setColor('#0099ff');
-
-//     // Start building the description from the root nodes
-//     let description = '';
-//     for (const rootNode of full) {
-//         description += buildDescription(rootNode, 0);
-//     }
-
-//     e.setDescription(description);
-
-//     // Send the embed to the channel
-//     await i.channel.send({
-//         embeds: [e]
-//     });
-// }
-
-// // Example usage (assuming `i` is your interaction and `full` is your nested replies array)
-// await sendRepliesEmbed(i, full);
-
-
-
-
-// // Function to build nested replies
-// function buildNestedReplies(rows: any[]): any[] {
-//   const idToNodeMap = new Map<string, any>();
-
-//   // Create the nodes and map them by ID
-//   rows.forEach(row => {
-//     // Initialize the node with an empty replies array
-//     idToNodeMap.set(row.id, { ...row, replies: [] });
-//   });
-
-//   const result: any[] = [];
-
-//   // Build the hierarchy
-//   idToNodeMap.forEach(node => {
-//     if (node.reference) {
-//       // Attach node to its parent's replies
-//       const parent = idToNodeMap.get(node.reference);
-//       if (parent) {
-//         parent.replies.push(node);
-//       }
-//     } else {
-//       // If there's no reference, it's a top-level message
-//       result.push(node);
-//     }
-
-//   });
-
-//   return result;
-// }
-
-
-// function buildNestedReplies(rows: any[]): any[] {
-//   // Step 1: Create a map to keep track of nodes by their ID
-//   const idToNodeMap = new Map<string, any>();
-
-//   // Initialize nodes in the map
-//   rows.forEach(row => {
-//     idToNodeMap.set(row.id, { ...row, replies: [], contentIncludes: new Set<string>() });
-//   });
-
-//   // Step 2: Identify references in content
-//   rows.forEach(row => {
-//     const node = idToNodeMap.get(row.id);
-//     if (node) {
-//       // Extract IDs from content and add them to the node's contentIncludes
-//       const content = node.content;
-//       const idPattern = /\b(\d+)\b/g;
-//       let match;
-//       while ((match = idPattern.exec(content)) !== null) {
-//         if (idToNodeMap.has(match[1])) {
-//           node.contentIncludes.add(match[1]);
-//         }
-//       }
-//     }
-//   });
-
-//   // Step 3: Build the hierarchy
-//   const result: any[] = [];
-//   rows.forEach(row => {
-//     const node = idToNodeMap.get(row.id);
-//     if (node) {
-//       // Attach replies based on direct references
-//       if (node.reference) {
-//         const parent = idToNodeMap.get(node.reference);
-//         if (parent) {
-//           parent.replies.push(node);
-//         }
-//       }
-
-//       // Attach replies based on content-based references
-//       node.contentIncludes.forEach(referenceId => {
-//         const parent = idToNodeMap.get(referenceId);
-//         if (parent) {
-//           parent.replies.push(node);
-//         }
-//       });
-
-//       // Collect top-level nodes (nodes that are not referenced by others)
-//       if (!rows.some(row => idToNodeMap.get(row.reference)?.replies.includes(node))) {
-//         result.push(node);
-//       }
-//     }
-//   });
-
-//   // Function to recursively ensure all replies are correctly nested
-//   function nestReplies(node: any) {
-//     if (node.replies.length > 0) {
-//       node.replies.forEach(reply => nestReplies(reply));
-//     }
-//   }
-
-//   // Nest replies for each top-level node
-//   result.forEach(node => nestReplies(node));
-
-//   return result;
-// }
 
 
 function buildNestedReplies(rows: any[]): any[] {
@@ -612,3 +330,4 @@ function buildNestedReplies(rows: any[]): any[] {
 
   return result;
 }
+

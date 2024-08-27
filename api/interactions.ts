@@ -3,6 +3,7 @@ import { TEST_SERVER } from "../src";
 // import mongoose from "mongoose";
 import { verifyKey, InteractionResponseType, InteractionType, InteractionResponseFlags } from "discord-interactions";
 import { APIInteractionResponse } from "discord.js";
+import * as InteractionCreateAction from "discord.js/src/client/actions/interactionCreate";
 import { RESTPostAPIInteractionCallbackJSONBody } from "discord-api-types/v10";
 import { verify } from "../src/verify";
 
@@ -32,6 +33,11 @@ export async function POST(req: Request) {
     if (message.type === InteractionType.APPLICATION_COMMAND) {
         console.log("the command is an applicaiton responding", message)
         console.log("resoonding with type", InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
+
+        const i = new InteractionCreateAction.handle(message)
+        console.log("this is I", i)
+
+
         return Response.json({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
