@@ -39,7 +39,7 @@ export async function POST(req: Request) {
         console.log("this is I", i)
         // console.log("this is i name", i.commandName)
 
-        i.isCommand() && console.log("command name", i)
+        i.isCommand() && console.log("command name", i, "channel", i.channel)
         // @ts-ignore
         await onInteractionCreate(i)
 
