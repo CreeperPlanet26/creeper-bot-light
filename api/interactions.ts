@@ -44,6 +44,7 @@ export async function POST(req: Request) {
         await onInteractionCreate(i)
 
 
+
         // return Response.json({
         //     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         //     data: {
