@@ -14,8 +14,9 @@ export function sleep(ms: number) {
 }
 
 // const client = new Client({ restTimeOffset: 75, intents: new Intents(["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS",]) });
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] });
-process.env.NODE_ENV === "production" && client.login(process.env.BOT_TOKEN);
+let client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] });
+// process.env.NODE_ENV === "production" && client.login(process.env.BOT_TOKEN);
+
 
 // if (process.env.NODE_ENV !== "production") client.login(process.env.DEV_BOT_TOKEN);
 
@@ -40,9 +41,8 @@ client.on("ready", async () => {
     // console.log((await channel.messages.fetch({ limit: 1 })).first())
 })
 
-export const onInteractionCreate = async (i: Interaction) => {
-    client.login();
-    await sleep(400)
+export const onInteractionCreate = async (i: Interaction, c?) => {
+    client = c
     console.log("onInteractionCreate")
 
 

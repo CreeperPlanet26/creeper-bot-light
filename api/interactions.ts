@@ -21,6 +21,7 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
+    client.login(process.env.BOT_TOKEN)
     //  console.log(mongoose)
     //  console.log(mongoose.connection)
     const txt = await req.text()
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
 
         i.isCommand() && console.log("command name", i, "channel", i.channel)
         // @ts-ignore
-        await onInteractionCreate(i)
+        await onInteractionCreate(i, client)
 
 
 
