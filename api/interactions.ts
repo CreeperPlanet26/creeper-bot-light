@@ -2,10 +2,8 @@
 import { onInteractionCreate, TEST_SERVER } from "../src";
 // import mongoose from "mongoose";
 import { verifyKey, InteractionResponseType, InteractionType, InteractionResponseFlags } from "discord-interactions";
-const InteractionCreateAction = require("discord.js/src/client/actions/InteractionCreate");
-import { RESTPostAPIInteractionCallbackJSONBody } from "discord-api-types/v10";
 import { verify } from "../src/verify";
-import { APIInteractionResponse } from "discord.js";
+import { APIInteractionResponse, ApplicationCommand, BaseInteraction, Client, GatewayIntentBits, MessageContextMenuCommandInteraction } from "discord.js";
 
 
 export async function GET(req: Request) {
@@ -34,8 +32,9 @@ export async function POST(req: Request) {
         console.log("the command is an applicaiton responding", message)
         console.log("resoonding with type", InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
 
-        const i = new InteractionCreateAction.handle(message)
+        const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), message.data)
         console.log("this is I", i)
+        console.log("this is i name", i.commandName)
         await onInteractionCreate(i)
 
 
@@ -58,3 +57,8 @@ export async function POST(req: Request) {
     }
 }
 
+class Test extends MessageContextMenuCommandInteraction {
+    constructor(c, d) {
+        super(c, d)
+    }
+}
