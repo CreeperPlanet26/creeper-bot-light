@@ -5,7 +5,8 @@ import { verifyKey, InteractionResponseType, InteractionType, InteractionRespons
 import { verify } from "../src/verify";
 import { APIInteractionResponse, ApplicationCommand, ApplicationCommandType, AutocompleteInteraction, BaseInteraction, ButtonInteraction, ChannelSelectMenuInteraction, ChatInputCommandInteraction, Client, ComponentType, Events, GatewayIntentBits, MentionableSelectMenuInteraction, MessageContextMenuCommandInteraction, ModalSubmitInteraction, Partials, RoleSelectMenuInteraction, StringSelectMenuInteraction, UserContextMenuCommandInteraction, UserSelectMenuInteraction } from "discord.js";
 
-
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] })
+client.login(process.env.BOT_TOKEN)
 
 export async function GET(req: Request) {
     const signature = req.headers.get('X-Signature-Ed25519');
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
 
         //@ts-ignore
         // const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), { ...message.data, user: message?.data?.member?.user })
-        const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), message)
+        const i = new Test(client, message)
         console.log("this is I", i)
         // console.log("this is i name", i.commandName)
 
