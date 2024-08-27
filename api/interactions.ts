@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         // console.log("this is i name", i.commandName)
         //@ts-ignore
 
-        await onInteractionCreate(i)
+        console.log(await onInteractionCreate(i))
 
 
         // return Response.json({
