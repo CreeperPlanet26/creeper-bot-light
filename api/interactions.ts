@@ -39,8 +39,6 @@ export async function POST(req: Request) {
         console.log("this is I", i)
         // console.log("this is i name", i.commandName)
 
-
-        if (i.isMessageContextMenuCommand()) console.log("command name since builder is true", i.commandName)
         i.isCommand() && console.log("command name", i.commandName)
         // @ts-ignore
         await onInteractionCreate(i)
@@ -67,7 +65,7 @@ export async function POST(req: Request) {
 }
 
 
-class Test extends BaseInteraction {
+class Test extends MessageContextMenuCommandInteraction {
     constructor(c, d) {
         super(c, d)
     }
