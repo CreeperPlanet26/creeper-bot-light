@@ -1,5 +1,4 @@
 import "dotenv/config";
-import { promises as fs } from 'fs';
 import { CacheType, Client, Collection, FetchMessagesOptions, GatewayIntentBits, Interaction, Message, MessageContextMenuCommandInteraction, MessageReference, TextChannel } from "discord.js";
 import { replyFetcherCommand } from "./replyFetcherCommand";
 // import { db } from "./db";
