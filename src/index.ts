@@ -12,6 +12,7 @@ export const TEST_SERVER = "640262033329356822";
 
 // const client = new Client({ restTimeOffset: 75, intents: new Intents(["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS",]) });
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] });
+process.env.NODE_ENV === "production" && client.login(process.env.BOT_TOKEN);
 
 // if (process.env.NODE_ENV !== "production") client.login(process.env.DEV_BOT_TOKEN);
 
