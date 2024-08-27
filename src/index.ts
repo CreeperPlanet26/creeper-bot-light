@@ -44,7 +44,7 @@ export const onInteractionCreate = async (i: Interaction) => {
     STARTED_AT = Date.now();
     console.log("Interaction started at.... ", STARTED_AT)
     console.time('interactionCreate')
-    if (!i.isMessageContextMenuCommand() || i.commandName !== replyFetcherCommand.name) console.log("command is not the one.")
+    if (i.isMessageContextMenuCommand() && i.commandName !== replyFetcherCommand.name) console.log("command is not the one.")
     if (!i.isMessageContextMenuCommand() || i.commandName !== replyFetcherCommand.name) return;
     i.deferReply();
 
@@ -53,7 +53,6 @@ export const onInteractionCreate = async (i: Interaction) => {
     // fetch from newest message in channel to the newest message in db.
     // after 55 seconds has passed since invoked time,   
     try {
-
 
         await saveNewestToOldest(i)
         await saveCursorAndAbove(i)
