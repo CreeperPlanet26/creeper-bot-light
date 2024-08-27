@@ -31,7 +31,6 @@ export async function POST(req: Request) {
     console.log("txt", txt)
     const message = JSON.parse(txt) as { type: InteractionType, data: APIInteractionResponse };
 
-    await sleep(2500)
 
 
     if (message.type === InteractionType.APPLICATION_COMMAND) {
@@ -46,7 +45,11 @@ export async function POST(req: Request) {
         // console.log("this is i name", i.commandName)
 
         i.isCommand() && console.log("command name", i, "channel", i.channel)
+        console.log("deferring reply...")
+        i.deferReply();
         // @ts-ignore
+        await sleep(2000)
+
         await onInteractionCreate(i, client)
 
 
