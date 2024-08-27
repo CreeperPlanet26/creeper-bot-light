@@ -36,8 +36,9 @@ export async function POST(req: Request) {
         const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), message.data)
         console.log("this is I", i)
         // console.log("this is i name", i.commandName)
+        i.isMessageContextMenuCommand() &&
 
-        await onInteractionCreate(i)
+            await onInteractionCreate(i)
 
 
         return Response.json({
@@ -249,7 +250,7 @@ export async function POST(req: Request) {
 // }
 
 
-class Test extends MessageContextMenuCommandInteraction {
+class Test extends BaseInteraction {
     constructor(c, d) {
         super(c, d)
     }
