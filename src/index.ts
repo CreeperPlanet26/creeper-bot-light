@@ -83,7 +83,7 @@ async function saveNewestToOldest(i: MessageContextMenuCommandInteraction<CacheT
     const [oldestRow] = await db
         .select({ id: messagesTable.id, timestamp: messagesTable.timestamp })
         .from(messagesTable)
-        .where(eq(messagesTable.channelId, i.channel.id))
+        .where(eq(messagesTable.channelId, i.channelId))
         .orderBy(asc(messagesTable.timestamp))
         .limit(1)
 
@@ -103,7 +103,7 @@ async function saveCursorAndAbove(i: MessageContextMenuCommandInteraction<CacheT
     const cursorRows = await db
         .select({ id: messagesTable.id, timestamp: messagesTable.timestamp, cursor: messagesTable.cursor, authorId: messagesTable.authorId, channelId: messagesTable.channelId })
         .from(messagesTable)
-        .where(and(eq(messagesTable.channelId, i.channel.id), eq(messagesTable.cursor, true)))
+        .where(and(eq(messagesTable.channelId, i.channelId), eq(messagesTable.cursor, true)))
         .orderBy(desc(messagesTable.timestamp))
     console.log(cursorRows.length, "cursor rows length intial", findDuplicatesWithCounts(cursorRows))
     const msgs = new Map<string, MessagesTable>();
@@ -112,15 +112,15 @@ async function saveCursorAndAbove(i: MessageContextMenuCommandInteraction<CacheT
         // const fetched = cursorRows[Number(index) + 1]?.id ? await fetchMessages(i, cursorRows[index].id, cursorRows[Number(index) + 1].id)
         //     : await fetchMessages(i, cursorRows[index].id, await db.select({ id: messagesTable.id, timestamp: messagesTable.timestamp })
         //         .from(messagesTable)
-        //         .where(and(eq(messagesTable.channelId, i.channel.id), lt(messagesTable.timestamp, cursorRows[index].timestamp)))
+        //         .where(and(eq(messagesTable.channelId, i.channelId), lt(messagesTable.timestamp, cursorRows[index].timestamp)))
         //         .orderBy(desc(messagesTable.timestamp))[0])
         console.log(cursorRows[index].id, (await db.select({ id: messagesTable.id, timestamp: messagesTable.timestamp })
             .from(messagesTable)
-            .where(and(eq(messagesTable.channelId, i.channel.id), lt(messagesTable.timestamp, cursorRows[index].timestamp)))
+            .where(and(eq(messagesTable.channelId, i.channelId), lt(messagesTable.timestamp, cursorRows[index].timestamp)))
             .orderBy(desc(messagesTable.timestamp)))[0]?.id, "this is the id")
         const fetched = await fetchMessages(i, cursorRows[index].id, (await db.select({ id: messagesTable.id, timestamp: messagesTable.timestamp })
             .from(messagesTable)
-            .where(and(eq(messagesTable.channelId, i.channel.id), lt(messagesTable.timestamp, cursorRows[index].timestamp)))
+            .where(and(eq(messagesTable.channelId, i.channelId), lt(messagesTable.timestamp, cursorRows[index].timestamp)))
             .orderBy(desc(messagesTable.timestamp)))[0]?.id)
 
 
@@ -145,7 +145,7 @@ async function saveCursorAndAbove(i: MessageContextMenuCommandInteraction<CacheT
         i.editReply("No cursor messages at this time")
         return []
     }
-    for (const c of cursorRows) console.log((await i.channel.messages.fetch(c.id)).url)
+    for (const c of cursorRows) console.log((await (<TextChannel>await client.channels.fetch(i.channelId)).messages.fetch(c.id)).url)
 
 
     await db.insert(messagesTable).values(Array.from(msgs.values())).onConflictDoUpdate({ target: messagesTable.id, set: { cursor: sql.raw(`excluded.${messagesTable.cursor.name}`) } })
@@ -161,7 +161,7 @@ async function fetchNewestToNewest(i: MessageContextMenuCommandInteraction<Cache
     const [newestRow] = await db
         .select({ id: messagesTable.id, timestamp: messagesTable.timestamp })
         .from(messagesTable)
-        .where(eq(messagesTable.channelId, i.channel.id))
+        .where(eq(messagesTable.channelId, i.channelId))
         .orderBy(desc(messagesTable.timestamp))
         .limit(1)
 
@@ -187,9 +187,9 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
     let messages = [];
     const referencedMessages: MessageReference[] = [];
 
-    if (!beforeId) coll = await i.channel.messages.fetch({ limit: 1 })
+    if (!beforeId) coll = await (<TextChannel>await client.channels.fetch(i.channelId)).messages.fetch({ limit: 1 })
 
-    else coll = await i.channel.messages.fetch({ limit: 100, before: beforeId })
+    else coll = await (<TextChannel>await client.channels.fetch(i.channelId)).messages.fetch({ limit: 100, before: beforeId })
     beforeId = coll.last()?.id;
     const interval = setInterval(() => {
         i.editReply(`Downloading ${messages.length} messages between ${messages[messages.length - 1].createdAt.toLocaleString()} and ${messages[0].createdAt.toLocaleString()}... + ${new Date().toLocaleString()}`)
@@ -247,7 +247,7 @@ async function fetchMessages(i: MessageContextMenuCommandInteraction<CacheType>,
             ).values());
 
         }
-        coll = (await i.channel.messages.fetch({ limit: 100, before: beforeId }))
+        coll = await (<TextChannel>await client.channels.fetch(i.channelId)).messages.fetch({ limit: 100, before: beforeId })
 
 
         if (!coll.size) {
