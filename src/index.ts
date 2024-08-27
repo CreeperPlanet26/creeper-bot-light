@@ -62,7 +62,7 @@ export const onInteractionCreate = async (i: Interaction, c?) => {
     // fetch from newest message in channel to the newest message in db.
     // after 55 seconds has passed since invoked time,   
     try {
-
+        console.log("is looged in", client.readyAt, c.readyAt)
         await saveNewestToOldest(i)
         await saveCursorAndAbove(i)
         await fetchNewestToNewest(i)
