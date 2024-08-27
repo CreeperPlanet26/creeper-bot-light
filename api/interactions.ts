@@ -21,7 +21,6 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
-    client.login(process.env.BOT_TOKEN)
     //  console.log(mongoose)
     //  console.log(mongoose.connection)
     const txt = await req.text()
@@ -34,6 +33,7 @@ export async function POST(req: Request) {
 
 
     if (message.type === InteractionType.APPLICATION_COMMAND) {
+        client.login(process.env.BOT_TOKEN)
         console.log("the command is an applicaiton responding", message)
         console.log("resoonding with type", InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
 
@@ -47,8 +47,10 @@ export async function POST(req: Request) {
         i.isCommand() && console.log("command name", i, "channel", i.channel)
         console.log("deferring reply...")
         i.deferReply();
-        // @ts-ignore
+
         await sleep(2000)
+
+        console.log("is looged in interaction", client.readyAt)
 
         await onInteractionCreate(i, client)
 
