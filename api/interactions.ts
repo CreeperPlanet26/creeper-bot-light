@@ -26,6 +26,8 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
+    await client.login(process.env.BOT_TOKEN)
+
     console.time("start of function")
     //  console.log(mongoose)
     //  console.log(mongoose.connection)
