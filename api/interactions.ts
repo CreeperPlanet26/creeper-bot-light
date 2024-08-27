@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     console.log("txt", txt)
     const message = JSON.parse(txt) as { type: InteractionType, data: APIInteractionResponse };
 
-    await sleep(1000)
+    await sleep(2700)
 
 
     if (message.type === InteractionType.APPLICATION_COMMAND) {
