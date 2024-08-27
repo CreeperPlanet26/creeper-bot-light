@@ -162,7 +162,6 @@ class GenericAction {
     }
 }
 
-module.exports = GenericAction;
 
 
 class InteractionCreateAction extends GenericAction {
