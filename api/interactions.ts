@@ -38,8 +38,8 @@ export async function POST(req: Request) {
         const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), message)
         console.log("this is I", i)
         // console.log("this is i name", i.commandName)
-        //@ts-ignore
 
+        // @ts-ignore
         console.log(await onInteractionCreate(i))
 
 

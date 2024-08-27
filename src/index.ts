@@ -37,7 +37,9 @@ client.on("ready", async () => {
 })
 
 export const onInteractionCreate = async (i: Interaction) => {
+    client.login();
     console.log("onInteractionCreate")
+
 
     STARTED_AT = Date.now();
     console.log("Interaction started at.... ", STARTED_AT)
