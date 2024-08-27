@@ -20,6 +20,7 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
+    console.time("start of function")
     //  console.log(mongoose)
     //  console.log(mongoose.connection)
     const txt = await req.text()
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
         i.isCommand() && console.log("command name", i, "channel", i.channel)
         console.log("deferring reply...")
         i.deferReply();
+        console.timeEnd("start of function")
 
 
         client.on("ready", async () => {
