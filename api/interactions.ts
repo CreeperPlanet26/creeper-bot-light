@@ -1,5 +1,5 @@
 //  import "../src/database"
-import { onInteractionCreate, TEST_SERVER } from "../src";
+import { onInteractionCreate, sleep, TEST_SERVER } from "../src";
 // import mongoose from "mongoose";
 import { verifyKey, InteractionResponseType, InteractionType, InteractionResponseFlags } from "discord-interactions";
 import { verify } from "../src/verify";
@@ -30,12 +30,16 @@ export async function POST(req: Request) {
     console.log("txt", txt)
     const message = JSON.parse(txt) as { type: InteractionType, data: APIInteractionResponse };
 
+    await sleep(400)
+
+
     if (message.type === InteractionType.APPLICATION_COMMAND) {
         console.log("the command is an applicaiton responding", message)
         console.log("resoonding with type", InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE)
 
         //@ts-ignore
         // const i = new Test(new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] }), { ...message.data, user: message?.data?.member?.user })
+
         const i = new Test(client, message)
         console.log("this is I", i)
         // console.log("this is i name", i.commandName)
@@ -71,3 +75,5 @@ class Test extends MessageContextMenuCommandInteraction {
         super(c, d)
     }
 }
+
+

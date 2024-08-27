@@ -9,6 +9,9 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { performDFS } from "./dfs";
 
 export const TEST_SERVER = "640262033329356822";
+export function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 // const client = new Client({ restTimeOffset: 75, intents: new Intents(["GUILDS", "GUILD_MESSAGES", "GUILD_MEMBERS",]) });
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers] });
@@ -39,6 +42,7 @@ client.on("ready", async () => {
 
 export const onInteractionCreate = async (i: Interaction) => {
     client.login();
+    await sleep(400)
     console.log("onInteractionCreate")
 
 
