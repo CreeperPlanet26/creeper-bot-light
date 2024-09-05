@@ -12,7 +12,7 @@ let random = Math.random().toString(36).substring(2, 15) + Math.random().toStrin
 
 client.on("ready", async () => {
     console.log("interactions.ts: is logged in", client.readyAt.toLocaleString())
-    const t = await <TextChannel>client.channels.cache.get("725143129237356674");
+    const t = await <TextChannel>client.channels.cache.get("1045085555878273136");
     t.send(random)
 })
 
@@ -59,7 +59,8 @@ export async function POST(req: Request) {
 
         i.isCommand() && console.log("command name", i, "channel", i.channel)
         console.log("deferring reply...")
-        i.deferReply();
+        // i.deferReply();
+        i.reply("...")
         console.timeEnd("start of function")
 
 
