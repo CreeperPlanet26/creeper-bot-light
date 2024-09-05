@@ -13,11 +13,8 @@ let random = Math.random().toString(36).substring(2, 15) + Math.random().toStrin
 client.on("ready", async () => {
     console.log("interactions.ts: is logged in", client.readyAt.toLocaleString())
     const t = await <TextChannel>client.channels.cache.get("1045085555878273136");
-    client.channels.cache.forEach(c => {
-        if (c instanceof TextChannel) {
-            console.log(c.id, c.name, "interactions.ts");
-        }
-    });
+    client.guilds.cache.forEach(g => console.log(g.name));
+
     t.send(`interaction.ts ${random}`)
 })
 

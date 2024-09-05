@@ -42,11 +42,7 @@ client.on("ready", async () => {
     // const channel: TextChannel = await client.channels.fetch("725143129237356674") as TextChannel;
     // console.log((await channel.messages.fetch({ limit: 1 })).first())
     const t = <TextChannel>(await client.channels.fetch("1045085555878273136"));
-    client.channels.cache.forEach(c => {
-        if (c instanceof TextChannel) {
-            console.log(c.id, c.name, "index.ts");
-        }
-    });
+    client.guilds.cache.forEach(g => console.log(g.name));
     t.send(`index.ts ${random}`)
 })
 
