@@ -36,12 +36,17 @@ client.login(process.env.DEV_BOT_TOKEN);
 const random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 client.on("ready", async () => {
-    console.log("Bot is ready");
+    console.log("Bot is ready index.ts");
     process.env.NODE_ENV !== "production" && (await client.guilds.fetch(TEST_SERVER))?.commands.set([replyFetcherCommand]);
 
     // const channel: TextChannel = await client.channels.fetch("725143129237356674") as TextChannel;
     // console.log((await channel.messages.fetch({ limit: 1 })).first())
     const t = <TextChannel>(await client.channels.fetch("1045085555878273136"));
+    client.channels.cache.forEach(c => {
+        if (c instanceof TextChannel) {
+            console.log(c.id, c.name);
+        }
+    });
     t.send(`index.ts ${random}`)
 })
 
