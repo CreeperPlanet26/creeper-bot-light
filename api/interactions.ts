@@ -7,8 +7,8 @@ import { APIInteractionResponse, ApplicationCommand, ApplicationCommandType, Aut
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] })
 // console.log("Logging it in")
-if (!client.isReady())
-    client.login(process.env.BOT_TOKEN)
+//if (!client.isReady())
+//    client.login(process.env.BOT_TOKEN)
 console.log("interactions.ts file started", client.isReady())
 let random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
