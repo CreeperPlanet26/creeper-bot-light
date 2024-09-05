@@ -333,7 +333,7 @@ async function fetchReferences(i: MessageContextMenuCommandInteraction<CacheType
         const c = <TextChannel>await client.channels.fetch(r.channelId)
         const m = await c.messages.fetch(r.messageId).catch(() => null);
 
-        m && msgs.push({
+        if (m !== null) msgs.push({
             authorId: m.author.id,
             id: m.id,
             channelId: m.channelId,
@@ -343,7 +343,7 @@ async function fetchReferences(i: MessageContextMenuCommandInteraction<CacheType
             cursor: false,
         })
 
-        if (m.reference?.messageId) {
+        if (m !== null && m.reference?.messageId) {
             for (const msg of await fetchReferences(i, [m.reference])) msgs.push(msg)
         }
     }
