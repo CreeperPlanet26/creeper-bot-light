@@ -50,12 +50,22 @@ client.on("ready", async () => {
     t.send(`index.ts ${random}`)
 })
 
+async function untilReady() {
+    return new Promise((resolve, reject) => {
+        if (client.isReady()) resolve(true)
+        else client.once("ready", () => resolve(true))
+    })
+}
+
 export const onInteractionCreate = async (i: Interaction, c?) => {
     client = c
     console.log("onInteractionCreate")
 
 
     STARTED_AT = Date.now();
+
+    await untilReady();
+
     console.log("Interaction started at.... ", STARTED_AT)
     console.time('interactionCreate')
     console.log("is this command a context menu", i.isMessageContextMenuCommand())
