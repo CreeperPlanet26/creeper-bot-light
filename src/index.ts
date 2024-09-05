@@ -60,7 +60,7 @@ export const onInteractionCreate = async (i: Interaction, c?) => {
     if (!i.isMessageContextMenuCommand() || i.commandName !== replyFetcherCommand.name) return;
     console.log("deferring reply...")
     // i.deferReply();
-    await i.reply(`... index.ts ${random}`)
+    await i.editReply(`... index.ts ${random}`)
 
     // fetch entire channel history for first time. check db here if not already saved. update it otherwise. Fetch after the initial message if there is already data in db. Should not have [message]
     // try to finish installing top chunk of channel if not done already. (oldest in db and keep going up)
@@ -95,7 +95,7 @@ async function saveNewestToOldest(i: MessageContextMenuCommandInteraction<CacheT
     const msgs = oldestRow ? await fetchMessages(i, oldestRow.id) : null
 
     if (!msgs?.length) {
-        i.reply("Old messages already installed")
+        i.editReply("Old messages already installed")
         return []
     }
     await db.insert(messagesTable).values(msgs);
