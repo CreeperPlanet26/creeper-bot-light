@@ -31,7 +31,7 @@ export const db = drizzle(pgClient);
 
 console.log('running in dev')
 
-client.login(process.env.DEV_BOT_TOKEN);
+process.env.NODE_ENV !== "production" && client.login(process.env.DEV_BOT_TOKEN);
 
 const random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
