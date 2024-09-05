@@ -44,7 +44,7 @@ client.on("ready", async () => {
     const t = <TextChannel>(await client.channels.fetch("1045085555878273136"));
     client.channels.cache.forEach(c => {
         if (c instanceof TextChannel) {
-            console.log(c.id, c.name);
+            console.log(c.id, c.name, "index.ts");
         }
     });
     t.send(`index.ts ${random}`)
