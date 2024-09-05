@@ -13,11 +13,11 @@ console.log("interactions.ts file started", client.isReady())
 let random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 client.on("ready", async () => {
-    console.log("interactions.ts: is logged in", client.readyAt.toLocaleString())
-    const t = await <TextChannel>client.channels.cache.get("1045085555878273136");
-    client.guilds.cache.forEach(g => console.log(g.name));
+ console.log("interactions.ts: is logged in", client.readyAt.toLocaleString())
+ //   const t = await <TextChannel>client.channels.cache.get("1045085555878273136");
+  //  client.guilds.cache.forEach(g => console.log(g.name));
 
-    t.send(`interaction.ts ${random}`)
+  //  t.send(`interaction.ts ${random}`)
 })
 
 export async function GET(req: Request) {
