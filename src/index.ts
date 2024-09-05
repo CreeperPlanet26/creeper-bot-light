@@ -41,8 +41,8 @@ client.on("ready", async () => {
 
     // const channel: TextChannel = await client.channels.fetch("725143129237356674") as TextChannel;
     // console.log((await channel.messages.fetch({ limit: 1 })).first())
-    const t = await <TextChannel>client.channels.cache.get("1045085555878273136");
-    t.send(random)
+    const t = <TextChannel>(await client.channels.fetch("1045085555878273136"));
+    t.send(`index.ts ${random}`)
 })
 
 export const onInteractionCreate = async (i: Interaction, c?) => {
@@ -60,7 +60,7 @@ export const onInteractionCreate = async (i: Interaction, c?) => {
     if (!i.isMessageContextMenuCommand() || i.commandName !== replyFetcherCommand.name) return;
     console.log("deferring reply...")
     // i.deferReply();
-    await i.reply("...")
+    await i.reply(`... index.ts ${random}`)
 
     // fetch entire channel history for first time. check db here if not already saved. update it otherwise. Fetch after the initial message if there is already data in db. Should not have [message]
     // try to finish installing top chunk of channel if not done already. (oldest in db and keep going up)
