@@ -6,9 +6,9 @@ import { verify } from "../src/verify";
 import { APIInteractionResponse, ApplicationCommand, ApplicationCommandType, AutocompleteInteraction, BaseInteraction, ButtonInteraction, ChannelSelectMenuInteraction, ChatInputCommandInteraction, Client, ComponentType, Events, GatewayIntentBits, MentionableSelectMenuInteraction, MessageContextMenuCommandInteraction, ModalSubmitInteraction, Partials, RoleSelectMenuInteraction, StringSelectMenuInteraction, TextChannel, UserContextMenuCommandInteraction, UserSelectMenuInteraction } from "discord.js";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] })
-console.log("Logging it in")
-if (!client.isReady)
-    client.login(process.env.BOT_TOKEN)
+// console.log("Logging it in")
+// if (!client.isReady)
+//     client.login(process.env.BOT_TOKEN)
 let random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 client.on("ready", async () => {
@@ -32,8 +32,10 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
-    if (!client.isReady)
+    if (!client.isReady) {
+        console.log("Logging in the bot due to POST")
         client.login(process.env.BOT_TOKEN)
+    }
     random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     console.time("start of function")
