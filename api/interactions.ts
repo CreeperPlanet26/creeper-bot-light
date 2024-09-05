@@ -3,14 +3,17 @@ import { onInteractionCreate, sleep, TEST_SERVER } from "../src";
 // import mongoose from "mongoose";
 import { verifyKey, InteractionResponseType, InteractionType, InteractionResponseFlags } from "discord-interactions";
 import { verify } from "../src/verify";
-import { APIInteractionResponse, ApplicationCommand, ApplicationCommandType, AutocompleteInteraction, BaseInteraction, ButtonInteraction, ChannelSelectMenuInteraction, ChatInputCommandInteraction, Client, ComponentType, Events, GatewayIntentBits, MentionableSelectMenuInteraction, MessageContextMenuCommandInteraction, ModalSubmitInteraction, Partials, RoleSelectMenuInteraction, StringSelectMenuInteraction, UserContextMenuCommandInteraction, UserSelectMenuInteraction } from "discord.js";
+import { APIInteractionResponse, ApplicationCommand, ApplicationCommandType, AutocompleteInteraction, BaseInteraction, ButtonInteraction, ChannelSelectMenuInteraction, ChatInputCommandInteraction, Client, ComponentType, Events, GatewayIntentBits, MentionableSelectMenuInteraction, MessageContextMenuCommandInteraction, ModalSubmitInteraction, Partials, RoleSelectMenuInteraction, StringSelectMenuInteraction, TextChannel, UserContextMenuCommandInteraction, UserSelectMenuInteraction } from "discord.js";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] })
 console.log("Logging it in")
 client.login(process.env.BOT_TOKEN)
+let random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
-client.on("ready", () => {
+client.on("ready", async () => {
     console.log("interactions.ts: is logged in", client.readyAt.toLocaleString())
+    const t = await <TextChannel>client.channels.cache.get("725143129237356674");
+    t.send(random)
 })
 
 export async function GET(req: Request) {
@@ -27,6 +30,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
     client.login(process.env.BOT_TOKEN)
+    random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     console.time("start of function")
     //  console.log(mongoose)
