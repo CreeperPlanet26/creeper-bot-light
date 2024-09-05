@@ -7,7 +7,8 @@ import { APIInteractionResponse, ApplicationCommand, ApplicationCommandType, Aut
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] })
 console.log("Logging it in")
-client.login(process.env.BOT_TOKEN)
+if (!client.isReady)
+    client.login(process.env.BOT_TOKEN)
 let random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
 client.on("ready", async () => {
@@ -31,7 +32,8 @@ export async function GET(req: Request) {
 
 
 export async function POST(req: Request) {
-    client.login(process.env.BOT_TOKEN)
+    if (!client.isReady)
+        client.login(process.env.BOT_TOKEN)
     random = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     console.time("start of function")
