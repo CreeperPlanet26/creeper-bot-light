@@ -330,8 +330,8 @@ async function fetchReferences(i: MessageContextMenuCommandInteraction<CacheType
     const msgs = [];
 
     for (const r of references) {
-        const c = <TextChannel>await client.channels.fetch(r.channelId);
-        const m = await c.messages.fetch(r.messageId);
+        const c = <TextChannel>await client.channels.fetch(r.channelId)
+        const m = await c.messages.fetch(r.messageId).catch(() => null);
 
         msgs.push({
             authorId: m.author.id,
