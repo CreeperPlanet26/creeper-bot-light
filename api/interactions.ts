@@ -60,7 +60,7 @@ export async function POST(req: Request) {
         i.isCommand() && console.log("command name", i, "channel", i.channel)
         console.log("deferring reply...")
         // i.deferReply();
-        i.reply("...")
+        await i.reply("...")
         console.timeEnd("start of function")
 
 
